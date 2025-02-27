@@ -10,6 +10,26 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    darwin = {
+      url = "github:LnL7/nix-darwin/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nix-homebrew = {
+      url = "github:zhaofengli-wip/nix-homebrew";
+    };
+    homebrew-bundle = {
+      url = "github:homebrew/homebrew-bundle";
+      flake = false;
+    };
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
+      flake = false;
+    };
+    homebrew-cask = {
+      url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
+
     treefmt-nix.url = "github:numtide/treefmt-nix";
     nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
     flake-utils.url = "github:numtide/flake-utils";
@@ -38,6 +58,11 @@
     nixpkgs,
     home-manager,
     flake-utils,
+    darwin,
+    nix-homebrew,
+    homebrew-bundle,
+    homebrew-core,
+    homebrew-cask,
     ...
   } @ inputs:
     flake-utils.lib.eachDefaultSystem (system: let
@@ -78,14 +103,38 @@
         ];
       };
 
+      # Darwin configuration
+      darwinConfigurations = {
+        default = darwin.lib.darwinSystem {
+          inherit system;
+          specialArgs = inputs;
+          modules = [
+            home-manager.darwinModules.home-manager
+            nix-homebrew.darwinModules.nix-homebrew
+            {
+              nix-homebrew = {
+                enable = true;
+                user = "wolfmermelstein";
+                taps = {
+                  "homebrew/homebrew-core" = homebrew-core;
+                  "homebrew/homebrew-cask" = homebrew-cask;
+                  "homebrew/homebrew-bundle" = homebrew-bundle;
+                };
+                mutableTaps = false;
+                autoMigrate = true;
+              };
+            }
+            ./darwin.nix
+          ];
+        };
+      };
+
       # Development shell
       devShell = pkgs.mkShell {
         packages = with pkgs; [
           wrappedNvim
-          nil
           git
-          nix
-          home-manager
+          nil
         ];
       };
 
