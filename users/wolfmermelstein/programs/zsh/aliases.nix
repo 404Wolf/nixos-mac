@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   fzf = "${pkgs.fzf}/bin/fzf";
   neovim = "${pkgs.wrappedNvim}/bin/nvim";
   neovide = "${pkgs.neovide}/bin/neovide";
