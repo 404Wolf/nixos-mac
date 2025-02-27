@@ -5,14 +5,11 @@
     wget
     tree
     tmux
-    util-linux
     openssl
-    yubikey-agent
     yubikey-manager
     htop
     cloudflared
     speedtest-cli
-    bluez
 
     # Networking & File Management
     rclone
@@ -22,7 +19,6 @@
     gcc
     cargo
     delve
-    gdb
     pkg-config
     gnumake
     nodejs_20
@@ -38,7 +34,6 @@
       ]))
     typst
     lazygit
-    yubikey-personalization-gui
     texliveFull
     pandoc
     code-cursor
@@ -65,30 +60,22 @@
     # Productivity & Documentation
     tldr
     wrappedNvim
-    libreoffice-qt6-still
     zotero
-    anki
     evince
 
     # Graphics & Media
     gimp
     inkscape
-    obs-studio
-    vlc
     mpv
     feh
 
     # Browsers & Communication
     google-chrome
     discord
-    zulip
-    zoom-us
     signal-desktop
     hoppscotch
-    beeper
 
     # Security & Password Management
-    bitwarden-desktop
     rbw
 
     # Database Tools

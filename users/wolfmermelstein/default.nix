@@ -1,13 +1,13 @@
 {
   imports = [
-    ./options.nix
     ./programs
-    ./scripts
+    ./themeing.nix
     ../../modules
   ];
 
   home = {
-    username = "wolf";
+    username = "wolfmermelstein";
     stateVersion = "23.11";
+    homeDirectory = "/Users/wolfmermelstein";
   };
 }

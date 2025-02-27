@@ -15,25 +15,6 @@ in
     programs.yazi = {
       enable = true;
       enableZshIntegration = true;
-      settings = {
-        open.editor = [
-          {
-            open = [
-              {
-                run = ''${pkgs.xdg-utils}/bin/xdg-open "$@"'';
-                desc = "Open";
-              }
-            ];
-            play = [
-              {
-                run = ''${pkgs.vlc}/bin/vlc "$@"'';
-                orphan = true;
-                for = "unix";
-              }
-            ];
-          }
-        ];
-      };
       theme.manager = {
         # Reusing bat themes, since it's suggested in the stying guide
         # https://yazi-rs.github.io/docs/configuration/theme#manager
