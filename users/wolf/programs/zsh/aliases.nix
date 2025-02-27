@@ -1,6 +1,5 @@
 {
   pkgs,
-  osConfig,
   ...
 }: let
   fzf = "${pkgs.fzf}/bin/fzf";
@@ -10,41 +9,27 @@
   git = "${pkgs.git}/bin/git";
   delta = "${pkgs.delta}/bin/delta";
   tmux = "${pkgs.tmux}/bin/tmux";
-
-  passwordFiles = {
-    anthropic = osConfig.sops.secrets."api-keys/anthropic".path;
-    openai = osConfig.sops.secrets."api-keys/openai".path;
-  };
 in {
-  # Wakeup hyprland
-  hypr-wakeup = "hyprctl dispatch dpms on eDP-1 && hyprctl dispatch dpms on DP-6 && hyprctl dispatch dpms on DP-8";
-
-  # Utilities
-  gpt = "ANTHROPIC_API_KEY=$(cat ${passwordFiles.anthropic}) OPENAI_API_KEY=$(cat ${passwordFiles.openai}) ${pkgs.nixGpt}/bin/gpt";
-  dalle = "OPENAI_API_KEY=$(cat ${passwordFiles.openai}) ${pkgs.dalleCLI}/bin/dallecli";
-
   # File navigation
   ".." = "../..";
   "..." = "../../..";
   "...." = "../../../..";
   ls = "${pkgs.eza}/bin/eza";
   lsd = "${pkgs.lsd}/bin/lsd -al --git";
-  cdtmp = "cd $(mktemp -d) && pwd | copy";
+  cdtmp = "cd $(mktemp -d) && pwd | pbcopy";
   cpd = "cp $(\"${fzf}\") .";
-  cpc = ''cp $(wl-paste | grep -o "/tmp.*")'';
 
-  # Copy paste
-  copy = "${pkgs.wl-clipboard}/bin/wl-copy";
-  paste = "${pkgs.wl-clipboard}/bin/wl-paste";
+  # Mac clipboard commands
+  copy = "pbcopy";
+  paste = "pbpaste";
 
   # File manipulation
   cat = "${pkgs.bat}/bin/bat";
 
   # Nix stuff
   nix-allow-unfree = "export NIXPKGS_ALLOW_UNFREE=1";
-  nix-disallow-unfree = "export NIXPKGS_ALLOW_UNFREE=1";
-  nix-rebuild-laptop = "nix run .#rebuild nixos laptop";
-  nix-rebuild-desktop = "nix run .#rebuild nixos desktop";
+  nix-disallow-unfree = "export NIXPKGS_ALLOW_UNFREE=0";
+  rebuild-darwin = "darwin-rebuild switch --flake .#macbookair";
   universal-term = "export TERM=screen-256color";
   nb = "nix build";
   nd = "nix develop";
@@ -59,8 +44,8 @@ in {
   fzo = "TO_OPEN=\"$(${fzf})\" && open $TO_OPEN 2>& /dev/null & disown";
   fzv = "nvim \"$(${fzf})\"";
   fzfcd = "z $(find * -type d | \"${fzf}\")";
-  fzfcp = "cat $(\"${fzf}\") | copy";
-  # Chatgpt fancy bash command that lets you scroll through history
+  fzfcp = "cat $(\"${fzf}\") | pbcopy";
+  # Scroll through history
   fzfsh = "history | ${fzf} +s --tac | awk '{print substr($0,index($0,$3))}' | sh";
 
   # Git Aliases
