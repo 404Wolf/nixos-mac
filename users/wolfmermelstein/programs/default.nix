@@ -10,6 +10,7 @@
     ./direnv.nix
     ./zoxide.nix
     ./firefox
+    ./kitty
   ];
 
   programs.home-manager.enable = true;
