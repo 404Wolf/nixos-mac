@@ -65,9 +65,9 @@
     homebrew-cask,
     ...
   } @ inputs: let
-    darwinSystem = "aarch64-darwin";
+    system = "aarch64-darwin";
     pkgs-options = {
-      system = darwinSystem;
+      inherit system;
       config = {allowUnfree = true;};
       permittedInsecurePackages = ["electron-25.9.0"];
     };
@@ -76,92 +76,78 @@
       // {
         overlays = [
           (final: prev: {
-            wrappedNvim = inputs.nix-neovim.packages.${darwinSystem}.default;
-            dalleCLI = inputs.dalleCLI.packages.${darwinSystem}.default;
-            nixGpt = inputs.nixGpt.packages.${darwinSystem}.default;
-            rcu = inputs.remarkable-connection-utility.packages.${darwinSystem}.default;
-            obsidian = inputs.remarkable-obsidian.packages.${darwinSystem}.obsidian;
-            cartographcf = inputs.cartographcf.packages.${darwinSystem}.default;
-            firefox-addons = inputs.firefox-addons.packages.${darwinSystem};
+            wrappedNvim = inputs.nix-neovim.packages.${system}.default;
+            dalleCLI = inputs.dalleCLI.packages.${system}.default;
+            nixGpt = inputs.nixGpt.packages.${system}.default;
+            rcu = inputs.remarkable-connection-utility.packages.${system}.default;
+            obsidian = inputs.remarkable-obsidian.packages.${system}.obsidian;
+            cartographcf = inputs.cartographcf.packages.${system}.default;
+            firefox-addons = inputs.firefox-addons.packages.${system};
           })
           inputs.nur.overlays.default
         ];
       });
 
     utils = pkgs.callPackage ./utils.nix {};
-
-    # Darwin-specific configurations
-    darwinOutputs = {
-      homeConfigurations.wolfmermelstein = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        extraSpecialArgs = {
-          inherit inputs utils;
-          helpers = utils;
-          nix-colors = inputs.nix-colors;
-        };
-        modules = [
-          ./users/wolfmermelstein
-        ];
+  in {
+    # Home Manager configuration
+    homeConfigurations.wolfmermelstein = home-manager.lib.homeManagerConfiguration {
+      inherit pkgs;
+      extraSpecialArgs = {
+        inherit inputs utils;
+        helpers = utils;
+        nix-colors = inputs.nix-colors;
       };
+      modules = [
+        ./users/wolfmermelstein
+      ];
+    };
 
-      darwinConfigurations = {
-        default = darwin.lib.darwinSystem {
-          system = darwinSystem;
-          specialArgs = inputs;
-          modules = [
-            home-manager.darwinModules.home-manager
-            nix-homebrew.darwinModules.nix-homebrew
-            {
-              nix-homebrew = {
-                enable = true;
-                user = "wolfmermelstein";
-                taps = {
-                  "homebrew/homebrew-core" = homebrew-core;
-                  "homebrew/homebrew-cask" = homebrew-cask;
-                  "homebrew/homebrew-bundle" = homebrew-bundle;
-                };
-                mutableTaps = false;
-                autoMigrate = true;
+    # Darwin configuration
+    darwinConfigurations = {
+      default = darwin.lib.darwinSystem {
+        inherit system;
+        specialArgs = inputs;
+        modules = [
+          home-manager.darwinModules.home-manager
+          nix-homebrew.darwinModules.nix-homebrew
+          {
+            nix-homebrew = {
+              enable = true;
+              user = "wolfmermelstein";
+              taps = {
+                "homebrew/homebrew-core" = homebrew-core;
+                "homebrew/homebrew-cask" = homebrew-cask;
+                "homebrew/homebrew-bundle" = homebrew-bundle;
               };
-            }
-            ./darwin.nix
-          ];
-        };
+              mutableTaps = false;
+              autoMigrate = true;
+            };
+          }
+          ./darwin.nix
+        ];
       };
     };
 
-    # Cross-platform outputs using flake-utils
-    crossPlatformOutputs = flake-utils.lib.eachDefaultSystem (system: {
-      # Development shell
-      devShell = let
-        systemPkgs = import nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-        };
-      in
-        systemPkgs.mkShell {
-          packages = with systemPkgs; [
-            git
-            nil
-            alejandra
-          ];
-        };
+    # Development shell
+    devShells.${system}.default = pkgs.mkShell {
+      packages = with pkgs; [
+        wrappedNvim
+        git
+        nil
+        alejandra
+      ];
+    };
 
-      # Formatter configuration
-      formatter = let
-        systemPkgs = import nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-        };
-        treefmtconfig = inputs.treefmt-nix.lib.evalModule systemPkgs {
-          projectRootFile = "flake.nix";
-          programs.alejandra.enable = true;
-          programs.shellcheck.enable = true;
-          settings.formatter.shellcheck.excludes = [".envrc"];
-        };
-      in
-        treefmtconfig.config.build.wrapper;
-    });
-  in
-    darwinOutputs // crossPlatformOutputs;
+    # Formatter configuration
+    formatter.${system} = let
+      treefmtconfig = inputs.treefmt-nix.lib.evalModule pkgs {
+        projectRootFile = "flake.nix";
+        programs.alejandra.enable = true;
+        programs.shellcheck.enable = true;
+        settings.formatter.shellcheck.excludes = [".envrc"];
+      };
+    in
+      treefmtconfig.config.build.wrapper;
+  };
 }
