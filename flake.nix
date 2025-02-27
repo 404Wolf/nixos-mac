@@ -64,33 +64,34 @@
     homebrew-core,
     homebrew-cask,
     ...
-  } @ inputs:
-    flake-utils.lib.eachDefaultSystem (system: let
-      pkgs-options = {
-        inherit system;
-        config = {allowUnfree = true;};
-        permittedInsecurePackages = ["electron-25.9.0"];
-      };
+  } @ inputs: let
+    darwinSystem = "aarch64-darwin";
+    pkgs-options = {
+      system = darwinSystem;
+      config = {allowUnfree = true;};
+      permittedInsecurePackages = ["electron-25.9.0"];
+    };
 
-      pkgs = import nixpkgs (pkgs-options
-        // {
-          overlays = [
-            (final: prev: {
-              wrappedNvim = inputs.nix-neovim.packages.${system}.default;
-              dalleCLI = inputs.dalleCLI.packages.${system}.default;
-              nixGpt = inputs.nixGpt.packages.${system}.default;
-              rcu = inputs.remarkable-connection-utility.packages.${system}.default;
-              obsidian = inputs.remarkable-obsidian.packages.${system}.obsidian;
-              cartographcf = inputs.cartographcf.packages.${system}.default;
-              firefox-addons = inputs.firefox-addons.packages.${system};
-            })
-            inputs.nur.overlays.default
-          ];
-        });
+    pkgs = import nixpkgs (pkgs-options
+      // {
+        overlays = [
+          (final: prev: {
+            wrappedNvim = inputs.nix-neovim.packages.${darwinSystem}.default;
+            dalleCLI = inputs.dalleCLI.packages.${darwinSystem}.default;
+            nixGpt = inputs.nixGpt.packages.${darwinSystem}.default;
+            rcu = inputs.remarkable-connection-utility.packages.${darwinSystem}.default;
+            obsidian = inputs.remarkable-obsidian.packages.${darwinSystem}.obsidian;
+            cartographcf = inputs.cartographcf.packages.${darwinSystem}.default;
+            firefox-addons = inputs.firefox-addons.packages.${darwinSystem};
+          })
+          inputs.nur.overlays.default
+        ];
+      });
 
-      utils = pkgs.callPackage ./utils.nix {};
-    in {
-      # Home Manager configuration
+    utils = pkgs.callPackage ./utils.nix {};
+
+    # Darwin-specific configurations
+    darwinOutputs = {
       homeConfigurations.wolfmermelstein = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         extraSpecialArgs = {
@@ -103,10 +104,9 @@
         ];
       };
 
-      # Darwin configuration
       darwinConfigurations = {
         default = darwin.lib.darwinSystem {
-          inherit system;
+          system = darwinSystem;
           specialArgs = inputs;
           modules = [
             home-manager.darwinModules.home-manager
@@ -128,19 +128,32 @@
           ];
         };
       };
+    };
 
+    # Cross-platform outputs using flake-utils
+    crossPlatformOutputs = flake-utils.lib.eachDefaultSystem (system: {
       # Development shell
-      devShell = pkgs.mkShell {
-        packages = with pkgs; [
-          wrappedNvim
-          git
-          nil
-        ];
-      };
+      devShell = let
+        systemPkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
+      in
+        systemPkgs.mkShell {
+          packages = with systemPkgs; [
+            git
+            nil
+            alejandra
+          ];
+        };
 
       # Formatter configuration
       formatter = let
-        treefmtconfig = inputs.treefmt-nix.lib.evalModule pkgs {
+        systemPkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
+        treefmtconfig = inputs.treefmt-nix.lib.evalModule systemPkgs {
           projectRootFile = "flake.nix";
           programs.alejandra.enable = true;
           programs.shellcheck.enable = true;
@@ -149,4 +162,6 @@
       in
         treefmtconfig.config.build.wrapper;
     });
+  in
+    darwinOutputs // crossPlatformOutputs;
 }
