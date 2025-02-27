@@ -1,11 +1,10 @@
 {
-  config,
-  pkgs,
-  ...
-}: let
-  user = "%USER%";
-in {
   system.checks.verifyNixPath = false;
+
+  users.users.wolfmermelstein = {
+    name = "wolfmermelstein";
+    home = "/Users/wolfmermelstein";
+  };
 
   ids.gids.nixbld = 350;
 
@@ -26,11 +25,11 @@ in {
       };
 
       dock = {
-        autohide = false;
+        autohide = true;
         show-recents = false;
         launchanim = true;
-        orientation = "bottom";
-        tilesize = 48;
+        orientation = "left";
+        tilesize = 30;
       };
 
       finder = {
