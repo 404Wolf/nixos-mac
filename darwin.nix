@@ -32,14 +32,33 @@
         tilesize = 30;
       };
 
+      menuExtraClock.ShowSeconds = true;
+
       finder = {
         _FXShowPosixPathInTitle = false;
+        AppleShowAllExtensions = true;
+        AppleShowAllFiles = true;
+        CreateDesktop = false;
+        FXRemoveOldTrashItems = false;
       };
 
       trackpad = {
         Clicking = true;
         TrackpadThreeFingerDrag = true;
       };
+
+      WindowManager = {
+        AutoHide = true;
+        EnableStandardClickToShowDesktop = false;
+      };
+
+      controlcenter = {
+        Bluetooth = true;
+        BatteryShowPercentage = true;
+        Sound = true;
+      };
     };
   };
+
+  services.tailscale.enable = true;
 }

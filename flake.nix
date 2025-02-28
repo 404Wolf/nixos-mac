@@ -47,15 +47,6 @@
     };
 
     nix-neovim.url = "github:404Wolf/nix-neovim";
-    dalleCLI.url = "github:404Wolf/DALLE-CLI";
-    nixGpt.url = "github:404Wolf/nixified-gpt-cli";
-    remarkable-connection-utility.url = "github:/404wolf/remarkable-connection-utility";
-    remarkable-obsidian.url = "github:404Wolf/remarkable-obsidian";
-
-    firefox-addons = {
-      url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = {
@@ -80,12 +71,7 @@
     pkgs = import nixpkgs (pkgs-options
       // {
         overlays = [
-          (final: prev: {
-            wrappedNvim = inputs.nix-neovim.packages.${system}.default;
-            dalleCLI = inputs.dalleCLI.packages.${system}.default;
-            nixGpt = inputs.nixGpt.packages.${system}.default;
-            firefox-addons = inputs.firefox-addons.packages.${system};
-          })
+          (final: prev: {wrappedNvim = inputs.nix-neovim.packages.${system}.default;})
           inputs.nur.overlays.default
         ];
       });

@@ -73,8 +73,6 @@ in {
   tma = "${tmux} attach-session -t ";
   tmls = "${tmux} list-sessions";
   tmks = "${tmux} kill-session -t ";
-  
-  gpt = "${pkgs.nixGpt}/bin/gpt";
 
   # Neovim aliases
   nv = neovim;
