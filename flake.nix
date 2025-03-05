@@ -112,7 +112,7 @@
               autoMigrate = true;
             };
           }
-          ./darwin.nix
+          ./darwin
         ];
       };
     };

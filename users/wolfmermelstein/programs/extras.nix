@@ -48,6 +48,7 @@
     unzip
     zip
     dtrx
+    obsidian
 
     # Monitoring & Analysis
     cloc
@@ -81,5 +82,9 @@
     # Database Tools
     sqlitebrowser
     gpgme
+
+    # Other
+    yazi
+    zoxide
   ];
 }
