@@ -45,7 +45,7 @@
     )
   );
 in {
-  home.file."${config.xdg.configHome}/gpt-cli/gpt.yml".text = builtins.toJSON {
+  home.file."${config.home.homeDirectory}/.config/gpt-cli/gpt.yml".text = builtins.toJSON {
     default_assistant = "general-${builtins.head models}";
     markdown = true;
     log_file = "${config.xdg.dataHome}/gpt.log";

@@ -10,7 +10,6 @@
     ./go.nix
     ./direnv.nix
     ./zoxide.nix
-    ./firefox
     ./kitty
   ];
 

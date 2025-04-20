@@ -16,6 +16,8 @@
     };
     extraConfig =
       ''
+        macos_option_as_alt yes
+
         map ctrl+shift+enter no_op
         map ctrl+shift+w no_op
         map ctrl+shift+] no_op

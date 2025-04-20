@@ -21,7 +21,7 @@
       global = {
         safe.directory = "*";
         core = {
-          excludesfile = "${config.xdg.configHome}/git/ignore";
+          excludesfile = "${config.home.homeDirectory}/.config";
         };
       };
     };
@@ -30,5 +30,5 @@
     enable = true;
     settings = {git_protocol = "ssh";};
   };
-  xdg.configFile."git/ignore".source = ./gitignore;
+  home.file."${config.home.homeDirectory}/.config/git/ignore".source = ./gitignore;
 }

@@ -14,17 +14,23 @@
       url = "github:LnL7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    mac-app-util.url = "github:hraban/mac-app-util";
+
     nix-homebrew = {
       url = "github:zhaofengli-wip/nix-homebrew";
     };
+
     homebrew-bundle = {
       url = "github:homebrew/homebrew-bundle";
       flake = false;
     };
+
     homebrew-core = {
       url = "github:homebrew/homebrew-core";
       flake = false;
     };
+
     homebrew-cask = {
       url = "github:homebrew/homebrew-cask";
       flake = false;
@@ -41,16 +47,6 @@
     };
 
     nix-neovim.url = "github:404Wolf/nix-neovim";
-    dalleCLI.url = "github:404Wolf/DALLE-CLI";
-    nixGpt.url = "github:404Wolf/nixified-gpt-cli";
-    remarkable-connection-utility.url = "github:/404wolf/remarkable-connection-utility";
-    remarkable-obsidian.url = "github:404Wolf/remarkable-obsidian";
-    cartographcf.url = "github:404Wolf/CartographCF";
-
-    firefox-addons = {
-      url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = {
@@ -75,40 +71,32 @@
     pkgs = import nixpkgs (pkgs-options
       // {
         overlays = [
-          (final: prev: {
-            wrappedNvim = inputs.nix-neovim.packages.${system}.default;
-            dalleCLI = inputs.dalleCLI.packages.${system}.default;
-            nixGpt = inputs.nixGpt.packages.${system}.default;
-            rcu = inputs.remarkable-connection-utility.packages.${system}.default;
-            obsidian = inputs.remarkable-obsidian.packages.${system}.obsidian;
-            cartographcf = inputs.cartographcf.packages.${system}.default;
-            firefox-addons = inputs.firefox-addons.packages.${system};
-          })
+          (final: prev: {wrappedNvim = inputs.nix-neovim.packages.${system}.default;})
           inputs.nur.overlays.default
         ];
       });
 
     utils = pkgs.callPackage ./utils.nix {};
   in {
-    # Home Manager configuration
-    homeConfigurations.wolfmermelstein = home-manager.lib.homeManagerConfiguration {
-      inherit pkgs;
-      extraSpecialArgs = {
-        inherit inputs utils;
-        helpers = utils;
-        nix-colors = inputs.nix-colors;
-      };
-      modules = [
-        ./users/wolfmermelstein
-      ];
-    };
-
     # Darwin configuration
     darwinConfigurations = {
       default = darwin.lib.darwinSystem {
-        inherit system;
+        inherit system pkgs;
         specialArgs = inputs;
         modules = [
+          inputs.mac-app-util.darwinModules.default
+          {
+            home-manager = {
+              users.wolfmermelstein = ./users/wolfmermelstein;
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              sharedModules = [inputs.mac-app-util.homeManagerModules.default];
+              extraSpecialArgs = {
+                inherit inputs utils;
+                helpers = utils;
+              };
+            };
+          }
           home-manager.darwinModules.home-manager
           nix-homebrew.darwinModules.nix-homebrew
           {
