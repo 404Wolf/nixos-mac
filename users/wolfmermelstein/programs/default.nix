@@ -1,5 +1,6 @@
 {
   imports = [
+    ./vscode
     ./git
     ./tmux
     ./yazi
